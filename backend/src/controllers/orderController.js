@@ -21,6 +21,14 @@ const createOrder = async (req, res) => {
     const orderItems = items.map((item) => {
       const product = products.find((p) => p.id === item.productId);
 
+      if (!product) {
+        throw new Error("Product not found");
+      }
+
+      if (item.quantity > product.stock) {
+        throw new Error(`Not enough stock for ${product.name}`);
+      }
+
       return {
         productId: item.productId,
         quantity: item.quantity,
@@ -33,26 +41,43 @@ const createOrder = async (req, res) => {
       0
     );
 
-    const order = await prisma.order.create({
-      data: {
-        userId: req.user.id,
-        address,
-        city,
-        state,
-        zipCode,
-        total,
-        items: {
-          create: orderItems,
-        },
-      },
-      include: {
-        items: {
-          include: {
-            product: true,
+    const order = await prisma.$transaction(async (tx) => {
+      const createdOrder = await tx.order.create({
+        data: {
+          userId: req.user.id,
+          address,
+          city,
+          state,
+          zipCode,
+          total,
+          items: {
+            create: orderItems,
           },
         },
-        user: true,
-      },
+        include: {
+          items: {
+            include: {
+              product: true,
+            },
+          },
+          user: true,
+        },
+      });
+
+      for (const item of orderItems) {
+        await tx.product.update({
+          where: {
+            id: item.productId,
+          },
+          data: {
+            stock: {
+              decrement: item.quantity,
+            },
+          },
+        });
+      }
+
+      return createdOrder;
     });
 
     res.status(201).json(order);

@@ -212,7 +212,7 @@ function AdminProducts() {
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-3 mb-3 bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className="w-full border border-gray-300 rounded-lg p-3 mb-3 focus:outline-none focus:ring-2 focus:ring-yellow-400"
               >
                 <option value="">Select category</option>
 
@@ -227,7 +227,7 @@ function AdminProducts() {
                 name="color"
                 value={formData.color}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-3 mb-3 bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className="w-full border border-gray-300 rounded-lg p-3 mb-3 focus:outline-none focus:ring-2 focus:ring-yellow-400"
               >
                 <option value="">Select color</option>
 
